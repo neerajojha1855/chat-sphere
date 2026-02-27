@@ -43,7 +43,7 @@ Ensure you have the following installed on your system:
 #### 1. Clone the Repository
 ```bash
 git clone https://github.com/neerajojha1855/chat-sphere.git
-cd chat-sphere
+cd ChatSphere
 ```
 
 #### 2. Create a Virtual Environment
@@ -63,7 +63,6 @@ Install all required Python packages.
 ```bash
 pip install -r requirements.txt
 ```
-*(If `requirements.txt` is missing, ensure you have `django` and `channels` installed via pip).*
 
 #### 4. Configure Environment Variables
 Create a `.env` file in the root directory (where `manage.py` is located) and add necessary configurations.
