@@ -21,7 +21,7 @@ The application architecture utilizes **Django Channels** and **WebSockets** for
 - **Backend Framework**: Python (Django, Django Channels)
 - **Frontend Styling**: TailwindCSS (via CDN), custom CSS
 - **Frontend Logic**: Vanilla JavaScript
-- **Database**: SQLite (default)
+- **Database**: PostgreSQL
 - **Asynchronous Server**: Daphne
 
 ---
@@ -36,6 +36,7 @@ Ensure you have the following installed on your system:
 - **Python** (version 3.8 or higher)
 - **pip** (Python package installer)
 - **Git**
+- **PostgreSQL**
 
 ### Step-by-Step Guide
 
