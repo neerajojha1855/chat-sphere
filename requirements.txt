@@ -5,3 +5,4 @@ django-tailwind==4.4.2
 pytailwindcss
 psycopg2-binary
 python-dotenv
+djangorestframework==3.16.1
