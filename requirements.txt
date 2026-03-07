@@ -6,3 +6,4 @@ pytailwindcss
 psycopg2-binary
 python-dotenv
 djangorestframework==3.16.1
+Pillow
