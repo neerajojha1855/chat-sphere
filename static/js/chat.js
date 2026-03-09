@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     let activeRoomId = null;
     let chatSocket = null;
+    let notificationSocket = null;
     let currentRoomMessages = [];
+    let typingTimeout = null;
 
     const noChatSelectedOverlay = document.getElementById('noChatSelectedOverlay');
     const activeChatName = document.getElementById('activeChatName');
@@ -31,7 +33,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    connectNotificationSocket();
     fetchRooms();
+
+    function connectNotificationSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        notificationSocket = new WebSocket(`${protocol}//${window.location.host}/ws/notifications/`);
+
+        notificationSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            if (data.type === 'new_message_notification') {
+                if (activeRoomId !== data.room_id) {
+                    // Update unread count if we don't have this room active
+                    updateOrAddRoomInList(data);
+                }
+            }
+        };
+
+        notificationSocket.onclose = function (e) {
+            console.error('Notification socket closed, reconnecting in 5s...');
+            setTimeout(connectNotificationSocket, 5000);
+        };
+    }
+
+    function updateOrAddRoomInList(data) {
+        let roomEl = document.querySelector(`.room-item[data-room-id="${data.room_id}"]`);
+
+        if (roomEl) {
+            // Update existing room
+            // Move to top
+            roomList.insertBefore(roomEl, roomList.firstChild);
+
+            // Increment badge
+            let badgeContainer = roomEl.querySelector('.unread-badge-container');
+            if (!badgeContainer) {
+                const infoDiv = roomEl.querySelector('.flex-1.overflow-hidden');
+                badgeContainer = document.createElement('div');
+                badgeContainer.className = 'unread-badge-container ml-2';
+                infoDiv.parentNode.insertBefore(badgeContainer, infoDiv.nextSibling);
+            }
+
+            let badge = badgeContainer.querySelector('.unread-badge');
+            if (badge) {
+                badge.textContent = parseInt(badge.textContent) + 1;
+            } else {
+                badgeContainer.innerHTML = `<span class="unread-badge bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">1</span>`;
+            }
+        } else {
+            // Room not in list (first message)
+            fetchRooms(); // Just refetch all rooms to ensure consistency
+        }
+    }
 
     async function fetchRooms() {
         try {
@@ -82,12 +134,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>`;
             }
 
+            let unreadBadgeHTML = '';
+            if (room.unread_count > 0) {
+                unreadBadgeHTML = `<div class="unread-badge-container ml-2">
+                    <span class="unread-badge bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">${room.unread_count}</span>
+                </div>`;
+            } else {
+                unreadBadgeHTML = `<div class="unread-badge-container ml-2"></div>`;
+            }
+
             el.innerHTML = `
                 ${avatarHTML}
                 <div class="flex-1 overflow-hidden">
                     <h3 class="font-medium text-gray-200 truncate">${roomTitle}</h3>
                     <p class="text-xs text-gray-500 truncate mt-0.5">Click to view messages</p>
                 </div>
+                ${unreadBadgeHTML}
             `;
 
             el.addEventListener('click', () => {
@@ -138,7 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
         currentRoomMessages = [];
         updatePinnedMessagesUI();
 
+        // Remove unread badge when selecting
+        const selectedRoomEl = document.querySelector(`.room-item[data-room-id="${roomId}"]`);
+        if (selectedRoomEl) {
+            const badgeContainer = selectedRoomEl.querySelector('.unread-badge-container');
+            if (badgeContainer) badgeContainer.innerHTML = '';
+        }
+
         await fetchMessages(roomId);
+
+        // Reset typing indicator
+        document.getElementById('typingIndicator').classList.add('hidden');
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${roomId}/`);
@@ -163,6 +235,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (msg) msg.is_pinned = data.is_pinned;
                 handleMessagePinned(data.message_id, data.is_pinned);
                 updatePinnedMessagesUI();
+            } else if (data.type === 'typing') {
+                if (data.username !== CONFIG.username) {
+                    const typingInd = document.getElementById('typingIndicator');
+                    if (data.is_typing) {
+                        typingInd.textContent = `${data.username} is typing...`;
+                        typingInd.classList.remove('hidden');
+                    } else {
+                        typingInd.classList.add('hidden');
+                    }
+                }
             } else if (data.message) {
                 // Fallback for older format if necessary
                 currentRoomMessages.push(data);
@@ -355,6 +437,26 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesList.scrollTop = messagesList.scrollHeight;
     }
 
+    // Typing Indicator Logic
+    messageInput.addEventListener('input', () => {
+        if (!chatSocket || !activeRoomId) return;
+
+        chatSocket.send(JSON.stringify({
+            'type': 'typing',
+            'is_typing': true
+        }));
+
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'type': 'typing',
+                    'is_typing': false
+                }));
+            }
+        }, 1500);
+    });
+
     messageForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const msg = messageInput.value.trim();
@@ -362,6 +464,14 @@ document.addEventListener('DOMContentLoaded', () => {
             chatSocket.send(JSON.stringify({
                 'message': msg
             }));
+
+            // Clear typing state immediately
+            chatSocket.send(JSON.stringify({
+                'type': 'typing',
+                'is_typing': false
+            }));
+            clearTimeout(typingTimeout);
+
             messageInput.value = '';
         }
     });
