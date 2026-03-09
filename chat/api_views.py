@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import ChatRoom, ChatParticipant, Message
 from django.contrib.auth import get_user_model
 from .serializers import ChatRoomSerializer, MessageSerializer
-from django.db.models import Count
+from django.db.models import Count, Q
 
 User = get_user_model()
 
@@ -54,15 +54,31 @@ def get_messages(request, room_id):
         return Response({"error": "Not a participant"}, status=403)
         
     messages = Message.objects.filter(chat_room=room).order_by('created_at')
+    
+    # Mark messages as read for the current user (if sender is someone else)
+    unread_messages = messages.filter(is_read=False).exclude(sender=request.user)
+    if unread_messages.exists():
+        unread_messages.update(is_read=True)
+        # Notify clients that messages were read could be done here if needed
+        
     serializer = MessageSerializer(messages, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_rooms(request):
-    participants = ChatParticipant.objects.filter(user=request.user)
+    participants = ChatParticipant.objects.filter(user=request.user).select_related('chat_room')
     rooms = [p.chat_room for p in participants]
-    serializer = ChatRoomSerializer(rooms, many=True)
+    
+    room_ids = [room.id for room in rooms]
+    annotated_rooms = ChatRoom.objects.filter(id__in=room_ids).annotate(
+        unread_count=Count(
+            'messages',
+            filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user)
+        )
+    ).order_by('-created_at')
+    
+    serializer = ChatRoomSerializer(annotated_rooms, many=True, context={'request': request})
     return Response(serializer.data)
 
 from channels.layers import get_channel_layer

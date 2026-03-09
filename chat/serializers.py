@@ -11,10 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ChatRoomSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()
+    unread_count = serializers.IntegerField(read_only=True, required=False) # Annotated from views
 
     class Meta:
         model = ChatRoom
-        fields = ['id', 'name', 'is_group', 'created_at', 'participants']
+        fields = ['id', 'name', 'is_group', 'created_at', 'participants', 'unread_count']
         
     def get_participants(self, obj):
         participants = obj.participants.all()
