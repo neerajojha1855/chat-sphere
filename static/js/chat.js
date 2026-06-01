@@ -143,18 +143,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 unreadBadgeHTML = `<div class="unread-badge-container ml-2"></div>`;
             }
 
+            let hideBtnHTML = `
+                <button class="hide-room-btn text-gray-500 hover:text-red-400 p-1 ml-1 focus:outline-none" data-room-id="${room.id}" title="Hide chat">
+                    <i class="ri-eye-off-line"></i>
+                </button>
+            `;
+
             el.innerHTML = `
                 ${avatarHTML}
                 <div class="flex-1 overflow-hidden">
                     <h3 class="font-medium text-gray-200 truncate">${roomTitle}</h3>
                     <p class="text-xs text-gray-500 truncate mt-0.5">Click to view messages</p>
                 </div>
-                ${unreadBadgeHTML}
+                <div class="flex items-center">
+                    ${unreadBadgeHTML}
+                    ${hideBtnHTML}
+                </div>
             `;
 
-            el.addEventListener('click', () => {
+            el.addEventListener('click', (e) => {
+                if (e.target.closest('.hide-room-btn')) return;
                 selectRoom(room.id, roomTitle, avatarChar, avatarUrl);
             });
+
+            const hideBtn = el.querySelector('.hide-room-btn');
+            if (hideBtn) {
+                hideBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (confirm('Hide this chat? It will reappear if you receive a new message or search for them again.')) {
+                        try {
+                            const res = await fetch(`/chat/api/rooms/${room.id}/hide/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': CONFIG.csrfToken
+                                }
+                            });
+                            if (res.ok) {
+                                el.remove();
+                                if (activeRoomId === room.id) {
+                                    activeRoomId = null;
+                                    chatArea.classList.add('hidden');
+                                    chatArea.classList.remove('flex');
+                                    noChatSelectedOverlay.classList.remove('hidden');
+                                    if (window.innerWidth < 768) {
+                                        sidebar.classList.remove('hidden');
+                                        sidebar.classList.add('flex');
+                                    }
+                                }
+                                // Check if roomList only has the noRoomsMsg left (which is hidden)
+                                const visibleRooms = Array.from(roomList.children).filter(child => child.classList.contains('room-item'));
+                                if (visibleRooms.length === 0) {
+                                    noRoomsMsg.classList.remove('hidden');
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Failed to hide room:', err);
+                        }
+                    }
+                });
+            }
 
             roomList.appendChild(el);
         });

@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/rooms/', api_views.get_user_rooms, name='api-rooms'),
     path('api/messages/<int:message_id>/delete/', api_views.delete_message, name='api-delete-message'),
     path('api/messages/<int:message_id>/pin/', api_views.pin_message, name='api-pin-message'),
+    path('api/rooms/<int:room_id>/hide/', api_views.hide_room, name='api-hide-room'),
 ]

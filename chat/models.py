@@ -13,6 +13,7 @@ class ChatParticipant(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='participants')
     chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='participants')
     joined_at = models.DateTimeField(auto_now_add=True)
+    is_hidden = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('user', 'chat_room')

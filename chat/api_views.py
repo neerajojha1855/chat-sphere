@@ -26,6 +26,11 @@ def create_chat_room(request):
         
         if common_rooms.exists():
             room = common_rooms.first()
+            # Unhide if hidden
+            participant = ChatParticipant.objects.filter(user=request.user, chat_room=room).first()
+            if participant and participant.is_hidden:
+                participant.is_hidden = False
+                participant.save()
             serializer = ChatRoomSerializer(room)
             return Response(serializer.data)
                 
@@ -67,7 +72,7 @@ def get_messages(request, room_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_rooms(request):
-    participants = ChatParticipant.objects.filter(user=request.user).select_related('chat_room')
+    participants = ChatParticipant.objects.filter(user=request.user, is_hidden=False).select_related('chat_room')
     rooms = [p.chat_room for p in participants]
     
     room_ids = [room.id for room in rooms]
@@ -127,3 +132,11 @@ def pin_message(request, message_id):
         }
     )
     return Response({"success": "Message pinned status toggled", "is_pinned": message.is_pinned})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def hide_room(request, room_id):
+    participant = get_object_or_404(ChatParticipant, user=request.user, chat_room_id=room_id)
+    participant.is_hidden = True
+    participant.save()
+    return Response({"success": "Room hidden"})

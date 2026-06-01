@@ -159,6 +159,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def save_message(self, room_id, user, content):
         room = ChatRoom.objects.get(id=room_id)
+        # Automatically unhide the room for all participants when a new message is sent
+        ChatParticipant.objects.filter(chat_room=room, is_hidden=True).update(is_hidden=False)
         return Message.objects.create(chat_room=room, sender=user, content=content)
 
     @database_sync_to_async
