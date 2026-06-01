@@ -6,4 +6,4 @@ __pycache__/
 *.pyo
 media/
 .DS_Store
-theme/
+theme/static_src/node_modules/
