@@ -1,7 +1,7 @@
 Django==5.1.1
 channels
 daphne
-django-tailwind==4.4.2
+django-tailwind
 pytailwindcss
 psycopg2-binary
 python-dotenv
