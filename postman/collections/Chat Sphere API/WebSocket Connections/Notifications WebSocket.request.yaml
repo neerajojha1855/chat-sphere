@@ -1,0 +1,9 @@
+$kind: websocket-request
+name: Notifications WebSocket
+url: 'ws://{{baseUrl_ws}}/ws/notifications/'
+order: 2000
+description: |-
+  WebSocket connection for receiving real-time notifications for the authenticated user.
+  
+  **Received events:**
+  - `new_message_notification` — a new message was received in any room

@@ -1,0 +1,16 @@
+$kind: http-request
+name: Create Group Chat Room
+method: POST
+url: '{{baseUrl}}/chat/api/create/'
+order: 3000
+description: Creates a new group chat room with the given name. The creator is automatically added as a participant.
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "is_group": true,
+      "name": "My Group"
+    }

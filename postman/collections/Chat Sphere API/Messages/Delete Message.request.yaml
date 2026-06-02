@@ -1,0 +1,6 @@
+$kind: http-request
+name: Delete Message
+method: DELETE
+url: '{{baseUrl}}/chat/api/messages/{{message_id}}/delete/'
+order: 2000
+description: Soft-deletes a message (sets is_deleted=true). Only the message sender can delete their own messages. Broadcasts deletion event via WebSocket.

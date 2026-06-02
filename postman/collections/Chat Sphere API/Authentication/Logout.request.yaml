@@ -1,0 +1,6 @@
+$kind: http-request
+name: Logout
+method: GET
+url: '{{baseUrl}}/users/logout/'
+order: 3000
+description: Logs out the current user and clears the session.

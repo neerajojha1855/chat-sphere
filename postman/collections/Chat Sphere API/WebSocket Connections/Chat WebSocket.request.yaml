@@ -1,0 +1,22 @@
+$kind: websocket-request
+name: Chat WebSocket
+url: 'ws://{{baseUrl_ws}}/ws/chat/{{room_id}}/'
+order: 1000
+description: |-
+  WebSocket connection for real-time chat in a specific room. Requires authentication.
+  
+  **Send a message:**
+  ```json
+  {"message": "Hello!"}
+  ```
+  
+  **Send typing indicator:**
+  ```json
+  {"type": "typing", "is_typing": true}
+  ```
+  
+  **Received events:**
+  - `chat_message` — new message in the room
+  - `message_deleted` — a message was soft-deleted
+  - `message_pinned` — a message pin status changed
+  - `typing` — a user is typing

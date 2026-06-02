@@ -1,0 +1,6 @@
+$kind: http-request
+name: Delete Account
+method: POST
+url: '{{baseUrl}}/users/profile/delete/'
+order: 2000
+description: Permanently deletes the authenticated user's account. Requires login session.

@@ -1,0 +1,15 @@
+$kind: http-request
+name: Create Private Chat Room
+method: POST
+url: '{{baseUrl}}/chat/api/create/'
+order: 2000
+description: Creates a new private (1-on-1) chat room with the specified user. If a room already exists, returns the existing one (and unhides it if hidden).
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "other_username"
+    }

@@ -1,0 +1,17 @@
+$kind: collection
+name: Chat Sphere API
+description: |-
+  REST API collection for Chat Sphere - a real-time messaging platform built with Django.
+  
+  Covers authentication (session-based), chat room management, messaging, and WebSocket connections.
+  
+  Set the `baseUrl` variable in the environment to your server URL (e.g., http://127.0.0.1:8000).
+variables:
+  - key: baseUrl
+    value: 'http://127.0.0.1:8000'
+  - key: baseUrl_ws
+    value: '127.0.0.1:8000'
+  - key: room_id
+    value: ''
+  - key: message_id
+    value: ''

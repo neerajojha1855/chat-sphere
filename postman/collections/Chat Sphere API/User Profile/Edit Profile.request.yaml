@@ -1,0 +1,21 @@
+$kind: http-request
+name: Edit Profile
+method: POST
+url: '{{baseUrl}}/users/profile/edit/'
+order: 1000
+description: Update the authenticated user's profile. Requires login session. Avatar can be uploaded as a file field.
+body:
+  type: formdata
+  content:
+    - key: username
+      type: text
+      value: testuser
+    - key: email
+      type: text
+      value: testuser@example.com
+    - key: first_name
+      type: text
+      value: Test
+    - key: last_name
+      type: text
+      value: User

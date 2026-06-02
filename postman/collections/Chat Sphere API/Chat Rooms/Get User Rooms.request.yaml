@@ -1,0 +1,6 @@
+$kind: http-request
+name: Get User Rooms
+method: GET
+url: '{{baseUrl}}/chat/api/rooms/'
+order: 1000
+description: Returns all chat rooms the authenticated user is a participant of (excluding hidden rooms). Each room includes participant info and unread message count.

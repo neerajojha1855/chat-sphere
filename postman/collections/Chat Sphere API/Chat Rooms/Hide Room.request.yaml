@@ -1,0 +1,6 @@
+$kind: http-request
+name: Hide Room
+method: POST
+url: '{{baseUrl}}/chat/api/rooms/{{room_id}}/hide/'
+order: 4000
+description: Hides a chat room from the authenticated user's room list. The room is not deleted; it reappears when a new message is sent.

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Login
+method: POST
+url: '{{baseUrl}}/users/login/'
+order: 2000
+description: Log in with credentials. Returns a session cookie used for subsequent authenticated requests.
+body:
+  type: urlencoded
+  content:
+    - key: username
+      value: testuser
+    - key: password
+      value: testpassword123

@@ -1,0 +1,17 @@
+$kind: http-request
+name: Sign Up
+method: POST
+url: '{{baseUrl}}/users/signup/'
+order: 1000
+description: Register a new user account. Returns session cookie on success.
+body:
+  type: urlencoded
+  content:
+    - key: username
+      value: testuser
+    - key: email
+      value: testuser@example.com
+    - key: password1
+      value: testpassword123
+    - key: password2
+      value: testpassword123

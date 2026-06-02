@@ -1,0 +1,6 @@
+$kind: http-request
+name: 'Pin / Unpin Message'
+method: POST
+url: '{{baseUrl}}/chat/api/messages/{{message_id}}/pin/'
+order: 3000
+description: Toggles the pinned status of a message. Any participant in the room can pin/unpin. Broadcasts pin event via WebSocket.

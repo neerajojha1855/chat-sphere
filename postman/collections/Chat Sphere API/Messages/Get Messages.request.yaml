@@ -1,0 +1,6 @@
+$kind: http-request
+name: Get Messages
+method: GET
+url: '{{baseUrl}}/chat/api/{{room_id}}/messages/'
+order: 1000
+description: Retrieves all messages in a chat room ordered by creation time. Marks unread messages (from other users) as read. Requires the user to be a participant.
