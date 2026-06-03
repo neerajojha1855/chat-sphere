@@ -7,3 +7,5 @@ __pycache__/
 media/
 .DS_Store
 theme/static_src/node_modules/
+credentials.json
+token.json

@@ -23,3 +23,8 @@ python-dotenv
 # Production Dependencies
 gunicorn
 whitenoise[brotli]==6.7.0
+
+# Gmail API Dependencies
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
