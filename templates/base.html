@@ -19,7 +19,18 @@
     {% block content %}
     {% endblock %}
 
+    <!-- Global Toast Notification Stack -->
+    <div id="toast-container" class="fixed bottom-20 right-4 md:right-8 z-[9999] flex flex-col items-end space-y-3 pointer-events-none">
+    </div>
     {% include 'footer.html' %}
-</body>
 
+    <script src="{% static 'js/toast.js' %}?v=1"></script>
+    {% if messages %}
+        <ul id="django-messages" class="hidden">
+            {% for message in messages %}
+                <li data-message="{{ message }}" data-tags="{{ message.tags }}"></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
 </html>
