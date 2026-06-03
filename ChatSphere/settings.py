@@ -180,7 +180,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1', '192.168.1.8']
+ALLOWED_HOSTS = ['localhost','127.0.0.1', '192.168.1.8', 'https://chat-sphere-pcio.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://chat-sphere-pcio.onrender.com']
 
 
