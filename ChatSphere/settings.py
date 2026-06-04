@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key')
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = ['*', '192.168.1.8']
-CSRF_TRUSTED_ORIGINS = ['https://chatshpere.qzz.io']
+CSRF_TRUSTED_ORIGINS = ['https://chatsphere.qzz.io']
 
 
 # Application definition
