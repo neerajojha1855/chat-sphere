@@ -52,8 +52,8 @@ def forgot_password_view(request):
 
             try:
                 subject = "Chat Sphere: Password Reset Code"
-                message = f"Your password reset code is: {reset_obj.code}\n\nThis code is valid for 15 minutes."
-                html_msg = f"<p>Your password reset code is: <strong>{reset_obj.code}</strong></p><p>This code is valid for 15 minutes.</p>"
+                message = f"Hi there! We received a request to reset your password for {user.email} at ChatSphere.\n\nYour 6-digit reset code is: {reset_obj.code}\n\nIf you didn't request this, please ignore this mail.\n\nThis code is valid for 15 minutes."
+                html_msg = f"<p>Hi there! We received a request to reset your password for {user.email} at ChatSphere.</p><p>Your 6-digit reset code is: <strong>{reset_obj.code}</strong></p><p>If you didn't request this, please ignore this mail.</p><p>This code is valid for 15 minutes.</p>"
 
                 send_mail(subject=subject, message=message, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[email], fail_silently=False, html_message=html_msg)
 

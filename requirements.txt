@@ -20,11 +20,9 @@ Pillow
 # Virtual Environment
 python-dotenv
 
+# Email Dependencies
+django-anymail[resend]==11.0.1
+
 # Production Dependencies
 gunicorn
 whitenoise[brotli]==6.7.0
-
-# Gmail API Dependencies
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
