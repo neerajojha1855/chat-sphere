@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = ['*', '192.168.1.8']
+ALLOWED_HOSTS = ['*', '192.168.1.4']
 CSRF_TRUSTED_ORIGINS = ['https://chatsphere.qzz.io']
 
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'chat',
     'cloudinary_storage',
     'cloudinary',
+    'anymail',
 ]
 
 TAILWIND_APP_NAME='theme'
@@ -169,10 +170,12 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
 }
 
-# Email Configuration (using Custom Gmail HTTP API Backend to bypass Render blocks)
-EMAIL_BACKEND = 'ChatSphere.gmail_backend.GmailBackend'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# Email Configuration (using Resend HTTP API via Anymail)
+EMAIL_BACKEND = 'anymail.backends.resend.EmailBackend'
+
+ANYMAIL = {'RESEND_API_KEY': os.getenv('RESEND_API_KEY'),}
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 
 STORAGES = {

@@ -15,14 +15,16 @@
 </head>
 
 <body
-    class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white h-screen overflow-hidden font-sans antialiased flex flex-col">
+    class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white h-[100dvh] max-h-[100dvh] overflow-hidden font-sans antialiased flex flex-col w-full">
     {% block content %}
     {% endblock %}
 
     <!-- Global Toast Notification Stack -->
     <div id="toast-container" class="fixed bottom-20 right-4 md:right-8 z-[9999] flex flex-col items-end space-y-3 pointer-events-none">
     </div>
-    {% include 'footer.html' %}
+    {% if request.resolver_match.url_name != 'index' %}
+        {% include 'footer.html' %}
+    {% endif %}
 
     <script src="{% static 'js/toast.js' %}?v=1"></script>
     {% if messages %}

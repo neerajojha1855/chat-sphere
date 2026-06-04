@@ -571,4 +571,15 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Failed to start chat. Check console.');
         }
     }
+
+    if(messageInput && messagesList) {
+        messageInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                messagesList.scrollTo({
+                    top: messagesList.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 300);
+        });
+    }
 });
