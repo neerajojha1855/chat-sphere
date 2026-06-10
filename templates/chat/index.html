@@ -11,15 +11,19 @@
         <div class="p-4 border-b border-gray-800 flex justify-between items-center">
             <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
                 ChatSphere</h1>
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2">
                 {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="{{ user.username }}"
+                <img src="{{ user.avatar.url }}" alt="{{ user.first_name|default:user.username }}"
                     class="w-8 h-8 rounded-full object-cover border border-gray-600">
                 {% else %}
-                <span class="text-xs text-gray-300 border px-2 py-1 rounded-full border-gray-700 bg-gray-800">
-                    {{ user.username }}
-                </span>
+                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs text-white border border-gray-600">
+                    {{ user.first_name|default:user.username|slice:":2"|upper }}
+                </div>
                 {% endif %}
+
+                <span class="text-xs text-gray-300 border px-2 py-1 rounded-full border-gray-700 bg-gray-800">
+                    {{ user.first_name|default:user.username }}
+                </span>
 
                 <a href="{% url 'users:edit_profile' %}" class="text-gray-400 hover:text-white" title="Edit Profile">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

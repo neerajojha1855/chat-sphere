@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
 import os
+import firebase_admin
+from pathlib import Path
 from dotenv import load_dotenv
+from firebase_admin import credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# Authentication (Firebase)
+FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH', str(BASE_DIR / 'firebase-credentials.json'))
 
+if os.path.exists(FIREBASE_CREDENTIALS_PATH):
+    cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+else:
+    print(f"Warning: Firebase credentials not found at {FIREBASE_CREDENTIALS_PATH}. SSO failed.")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -28,10 +38,12 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*', '192.168.1.4']
 CSRF_TRUSTED_ORIGINS = ['https://chatsphere.qzz.io']
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
 
 
 # Application definition
@@ -79,6 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ChatSphere.context_processors.firebase_config',
             ],
         },
     },

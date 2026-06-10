@@ -34,5 +34,54 @@
             {% endfor %}
         </ul>
     {% endif %}
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: '{{FIREBASE_API_KEY}}',
+            authDomain: '{{FIREBASE_AUTH_DOMAIN}}',
+            projectId: '{{FIREBASE_PROJECT_ID}}',
+            storageBucket: '{{FIREBASE_STORAGE_BUCKET}}',
+            messagingSenderId: '{{FIREBASE_MESSAGING_SENDER_ID}}',
+            appId: '{{FIREBASE_APP_ID}}',
+            measurementId: '{{FIREBASE_MEASUREMENT_ID}}'
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        function signInWithGoogle() {
+            auth.signInWithPopup(provider)
+            .then((result) => {
+                return result.user.getIdToken();
+            })
+            .then((idToken) => {
+                return fetch('/users/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({idToken: idToken})
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    window.location.href = "{% url 'chat:index' %}";
+                } else {
+                    console.error(data.error);
+                    alert('error during SSO: ' + data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Firebase Auth Error:', error);
+                alert('Firebase Auth Error: ' + error.message);
+            });
+        }
+    </script>
 </body>
 </html>

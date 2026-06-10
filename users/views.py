@@ -1,3 +1,6 @@
+import json
+import firebase_admin.auth
+import urllib.request
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -7,6 +10,9 @@ from django.core.mail import send_mail
 from .models import User, PasswordResetCode
 from .forms import CustomUserCreationForm, UserProfileForm ,ForgotPasswordForm, ResetPasswordForm
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -124,3 +130,60 @@ def delete_account_view(request):
         messages.success(request, 'Your account has been permanently deleted.')
         return redirect('users:login')
     return redirect('users:edit_profile')
+
+@csrf_exempt
+def auth_view(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            id_token = data.get('idToken')
+            if not id_token:
+                return JsonResponse({'error': 'No token provided'}, status=400)
+            
+            decoded_token = firebase_admin.auth.verify_id_token(id_token)
+            email = decoded_token.get('email')
+
+            if not email:
+                return JsonResponse({'error': 'Email not found'}, status=400)
+            
+            user = User.objects.filter(email=email).first()
+
+            if not user:
+                username = email.split('@')[0]
+                base_username = username
+                counter = 1
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+                
+                user = User.objects.create_user(username=username, email=email)
+                user.set_unusable_password()
+                
+                name = decoded_token.get('name', '')
+                if name:
+                    parts = name.split(' ', 1)
+                    user.first_name = parts[0]
+                    if len(parts) > 1:
+                        user.last_name = parts[1]
+                
+                picture = decoded_token.get('picture')
+                if picture:
+                    try:
+                        req = urllib.request.Request(picture, headers={'User-Agent': 'Mozilla/5.0'})
+                        response = urllib.request.urlopen(req)
+                        user.avatar.save(f"{username}_google.jpg", ContentFile(response.read()), save=False)
+                    except Exception as e:
+                        print("Failed to download Google Avatar:", e)
+                
+                user.save()
+            
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            return JsonResponse({'success': True, 'message': 'Logged in successfully'})
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({'error': str(e), 'traceback': traceback.format_exc()}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
