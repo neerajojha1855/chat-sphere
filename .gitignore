@@ -9,4 +9,4 @@ media/
 theme/static_src/node_modules/
 credentials.json
 token.json
-firebase-credentials.json
+firebase-credentials.json.venv/
