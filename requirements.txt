@@ -6,6 +6,7 @@ pytailwindcss
 # Additional Dependencies
 djangorestframework==3.16.1
 channels
+channels_redis==4.2.0
 daphne
 websockets
 

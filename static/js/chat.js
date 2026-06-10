@@ -1,4 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    if (typeof E2EE !== 'undefined') {
+        await E2EE.setupE2EE(CONFIG.userId, CONFIG.csrfToken);
+    }
     let activeRoomId = null;
     let chatSocket = null;
     let notificationSocket = null;
@@ -116,6 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 roomTitle = otherParticipant ? otherParticipant.username : 'Unknown User';
                 if (otherParticipant && otherParticipant.avatar) {
                     avatarUrl = otherParticipant.avatar;
+                }
+                if (otherParticipant) {
+                    el.dataset.otherId = otherParticipant.id;
+                    el.dataset.otherPubKey = otherParticipant.public_key || '';
                 }
             }
 
@@ -262,12 +269,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         chatSocket = new WebSocket(`${protocol}//${window.location.host}/ws/chat/${roomId}/`);
 
-        chatSocket.onmessage = function (e) {
+        chatSocket.onmessage = async function (e) {
             const data = JSON.parse(e.data);
             if (data.type === 'chat_message') {
                 // If it's your own freshly sent message via websocket, try to look up your avatar dynamically
                 if (data.sender === CONFIG.username) {
                     data.sender_avatar = CONFIG.avatarUrl;
+                }
+                if (typeof E2EE !== 'undefined') {
+                    data.message = await E2EE.decryptMessage(data.message, CONFIG.userId);
                 }
                 currentRoomMessages.push(data);
                 appendMessage(data);
@@ -294,6 +304,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (data.message) {
                 // Fallback for older format if necessary
+                if (typeof E2EE !== 'undefined') {
+                    data.message = await E2EE.decryptMessage(data.message, CONFIG.userId);
+                }
                 currentRoomMessages.push(data);
                 appendMessage(data);
                 updatePinnedMessagesUI();
@@ -374,15 +387,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const messages = await res.json();
             messagesList.innerHTML = '';
 
-            const mappedMessages = messages.map(msg => ({
+            const mappedMessages = await Promise.all(messages.map(async msg => ({
                 id: msg.id,
-                message: msg.content,
+                message: typeof E2EE !== 'undefined' ? await E2EE.decryptMessage(msg.content, CONFIG.userId) : msg.content,
                 sender: msg.sender.username,
                 sender_avatar: msg.sender.avatar,
                 is_pinned: msg.is_pinned,
                 is_deleted: msg.is_deleted,
                 created_at: msg.created_at
-            }));
+            })));
 
             currentRoomMessages = mappedMessages;
             mappedMessages.forEach(msg => appendMessage(msg));
@@ -504,12 +517,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     });
 
-    messageForm.addEventListener('submit', (e) => {
+    messageForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const msg = messageInput.value.trim();
         if (msg && chatSocket && activeRoomId) {
+            let payloadStr = msg;
+            if (typeof E2EE !== 'undefined') {
+                const activeRoomEl = document.querySelector(`.room-item[data-room-id="${activeRoomId}"]`);
+                const otherId = activeRoomEl ? activeRoomEl.dataset.otherId : null;
+                const otherPubKey = activeRoomEl ? activeRoomEl.dataset.otherPubKey : null;
+                
+                try {
+                    payloadStr = await E2EE.encryptMessage(msg, CONFIG.userId, E2EE.getLocalPublicKey(), otherId, otherPubKey);
+                } catch(err) {
+                    console.error("Encryption failed", err);
+                    return;
+                }
+            }
+
             chatSocket.send(JSON.stringify({
-                'message': msg
+                'message': payloadStr
             }));
 
             // Clear typing state immediately

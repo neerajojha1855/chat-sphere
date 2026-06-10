@@ -7,7 +7,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_online', 'last_seen', 'avatar']
+        fields = ['id', 'username', 'is_online', 'last_seen', 'avatar', 'public_key']
 
 class ChatRoomSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()

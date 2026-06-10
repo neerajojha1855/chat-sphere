@@ -51,14 +51,11 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-insecure-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*', 'chatsphere.qzz.io']
+ALLOWED_HOSTS = ['*', 'chatsphere.qzz.io', '.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://chatsphere.qzz.io']
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
-
-
 # Application definition
-
 INSTALLED_APPS = [
     'daphne',
     'django.contrib.admin',
@@ -111,11 +108,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ChatSphere.wsgi.application'
 ASGI_APPLICATION = 'ChatSphere.asgi.application'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+if os.getenv('REDIS_URL'):
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+            "CONFIG": {
+                "hosts": [os.getenv('REDIS_URL')],
+            },
+        }
     }
-}
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
 
 AUTH_USER_MODEL = 'users.User'
 

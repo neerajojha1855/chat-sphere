@@ -136,7 +136,9 @@
         username: "{{ user.username|default:'' }}",
         avatarUrl: "{% if user.avatar %}{{ user.avatar.url }}{% endif %}",
         csrfToken: "{{ csrf_token }}",
+        publicKey: "{{ user.public_key|default:'' }}"
     };
 </script>
-<script src="{% static 'js/chat.js' %}?v=5"></script>
+<script src="{% static 'js/e2ee.js' %}?v=1"></script>
+<script src="{% static 'js/chat.js' %}?v=6"></script>
 {% endblock %}
