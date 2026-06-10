@@ -25,7 +25,18 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # Authentication (Firebase)
 FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH', str(BASE_DIR / 'firebase-credentials.json'))
 
-if os.path.exists(FIREBASE_CREDENTIALS_PATH):
+import json
+
+firebase_creds_env = os.getenv('FIREBASE_CREDENTIALS')
+if firebase_creds_env:
+    try:
+        cred_dict = json.loads(firebase_creds_env)
+        cred = credentials.Certificate(cred_dict)
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+    except Exception as e:
+        print(f"Error loading FIREBASE_CREDENTIALS from env: {e}")
+elif os.path.exists(FIREBASE_CREDENTIALS_PATH):
     cred = credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
