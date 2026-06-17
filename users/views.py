@@ -53,23 +53,29 @@ def forgot_password_view(request):
             email = form.cleaned_data.get('email')
             user = User.objects.filter(email=email).first()
 
-            reset_obj = PasswordResetCode(user=user)
-            reset_obj.generate_code()
+            if user:
+                reset_obj = PasswordResetCode(user=user)
+                reset_obj.generate_code()
 
-            try:
-                subject = "Chat Sphere: Password Reset Code"
-                message = f"Hi there! We received a request to reset your password for {user.email} at ChatSphere.\n\nYour 6-digit reset code is: {reset_obj.code}\n\nIf you didn't request this, please ignore this mail.\n\nThis code is valid for 15 minutes."
-                html_msg = f"<p>Hi there! We received a request to reset your password for {user.email} at ChatSphere.</p><p>Your 6-digit reset code is: <strong>{reset_obj.code}</strong></p><p>If you didn't request this, please ignore this mail.</p><p>This code is valid for 15 minutes.</p>"
+                try:
+                    subject = "Chat Sphere: Password Reset Code"
+                    message = f"Hi there! We received a request to reset your password for {user.email} at Chat Sphere.\n\nYour 6-digit reset code is: {reset_obj.code}\n\nIf you didn't request this, please ifnore this mail.\n\nThis code is valid for 15 minutes."
+                    html_msg = f"<p>Hi there! We received a request to reset your password for {user.email} at ChatSphere.</p><p>Your 6-digit reset code is: <strong>{reset_obj.code}</strong></p><p>If you didn't request this, please ignore this mail.</p><p>This code is valid for 15 minutes.</p>"
 
-                send_mail(subject=subject, message=message, from_email=settings.DEFAULT_FROM_EMAIL, recipient_list=[email], fail_silently=False, html_message=html_msg)
+                    send_mail(
+                        subject=subject,
+                        message=message,
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[email],
+                        fail_silently=False,
+                        html_message=html_msg
+                    )
 
-                request.session['reset_email'] = email
-                messages.success(request, "A reset code has been sent to your email.")
-
-                return redirect('users:reset_password')
-            
-            except Exception as e:
-                messages.error(request, "Error sending email. Please try again later.")
+                    request.session['reset_email'] = email
+                except Exception as e:
+                    pass
+            messages.success(request, "If an account with that email exists, a reset code has been sent.")
+            return redirect('users:reset_password')
     
     else:
         form = ForgotPasswordForm()

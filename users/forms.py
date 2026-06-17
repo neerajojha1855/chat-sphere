@@ -19,13 +19,6 @@ User = get_user_model()
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control','placholder': 'Enter your email address'}))
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if not User.objects.filter(email=email).exists():
-            raise forms.ValidationError("No account was found with this Email")
-        
-        return email
-
 class ResetPasswordForm(forms.Form):
     code = forms.CharField(
         max_length=6,
