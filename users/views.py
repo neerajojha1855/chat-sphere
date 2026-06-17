@@ -11,7 +11,6 @@ from .models import User, PasswordResetCode
 from .forms import CustomUserCreationForm, UserProfileForm ,ForgotPasswordForm, ResetPasswordForm
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 
 def signup_view(request):
@@ -137,7 +136,6 @@ def delete_account_view(request):
         return redirect('users:login')
     return redirect('users:edit_profile')
 
-@csrf_exempt
 def auth_view(request):
     if request.method == 'POST':
         try:
