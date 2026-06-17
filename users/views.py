@@ -182,8 +182,6 @@ def auth_view(request):
             return JsonResponse({'success': True, 'message': 'Logged in successfully'})
         
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return JsonResponse({'error': str(e), 'traceback': traceback.format_exc()}, status=400)
+            return JsonResponse({'error': "Authentication failed, Please try again."}, status=400)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
