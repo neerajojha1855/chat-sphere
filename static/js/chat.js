@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${avatarHTML}
             <div class="max-w-[70%] message-bubble flex flex-col ${isPinnedClass} ${isMe ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-l-2xl rounded-tr-2xl' : 'bg-gray-800 text-gray-100 rounded-r-2xl rounded-tl-2xl'} p-3 shadow-md">
                 ${!isMe ? `<div class="text-[10px] font-bold text-gray-400 mb-1 leading-tight">${data.sender}</div>` : ''}
-                <div class="text-sm break-words message-content ${isDeleted ? 'italic text-gray-500' : ''}">${data.message}</div>
+                <div class="text-sm break-words message-content ${isDeleted ? 'italic text-gray-500' : ''}"></div>
                 <div class="flex justify-between items-center mt-1">
                     <div class="flex">
                         ${pinBtnHTML}
@@ -456,6 +456,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         `;
+        const msgContentEl = msgEl.querySelector('.message-content');
+        if (msgContentEl) {
+            msgContentEl.textContent = data.message;
+        }
 
         messagesList.appendChild(msgEl);
         scrollToBottom();
