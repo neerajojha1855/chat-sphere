@@ -76,15 +76,21 @@ const E2EE = (() => {
         const privKeyStr = localStorage.getItem(`e2ee_priv_${userId}`);
         const pubKeyStr = localStorage.getItem(`e2ee_pub_${userId}`);
 
+        let keysLoaded = false;
         if (privKeyStr && pubKeyStr) {
-            localPrivateKey = await importPrivateKey(privKeyStr);
-            localPublicKey = pubKeyStr;
-        } else {
+            try {
+                localPrivateKey = await importPrivateKey(privKeyStr);
+                localPublicKey = pubKeyStr;
+                keysLoaded = true;
+            } catch(err) {
+                console.error("Failed to load keys, generating new ones...", err);
+            }
+        }
+        if (!keysLoaded) {
             console.log("Generating new E2EE keys...");
             const keyPair = await generateRSAKeys();
             localPublicKey = await exportPublicKey(keyPair.publicKey);
             const exportedPriv = await exportPrivateKey(keyPair.privateKey);
-            
             localStorage.setItem(`e2ee_priv_${userId}`, exportedPriv);
             localStorage.setItem(`e2ee_pub_${userId}`, localPublicKey);
             localPrivateKey = keyPair.privateKey;

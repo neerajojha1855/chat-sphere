@@ -525,12 +525,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         const msg = messageInput.value.trim();
         if (msg && chatSocket && activeRoomId) {
+            if(chatSocket.readyState !== WebSocket.OPEN) {
+                alert("Connection is not open yet. Please waith a moment.");
+                return;
+            }
             let payloadStr = msg;
             if (typeof E2EE !== 'undefined') {
                 const activeRoomEl = document.querySelector(`.room-item[data-room-id="${activeRoomId}"]`);
                 const otherId = activeRoomEl ? activeRoomEl.dataset.otherId : null;
                 const otherPubKey = activeRoomEl ? activeRoomEl.dataset.otherPubKey : null;
-                
                 try {
                     payloadStr = await E2EE.encryptMessage(msg, CONFIG.userId, E2EE.getLocalPublicKey(), otherId, otherPubKey);
                 } catch(err) {
@@ -603,7 +606,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    if(messageInput && messagesList) {
+    if (messageInput && messagesList) {
         messageInput.addEventListener('focus', () => {
             setTimeout(() => {
                 messagesList.scrollTo({
