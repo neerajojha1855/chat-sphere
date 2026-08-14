@@ -111,7 +111,7 @@ ASGI_APPLICATION = 'ChatSphere.asgi.application'
 if os.getenv('REDIS_URL'):
     CHANNEL_LAYERS = {
         "default": {
-            "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
                 "hosts": [os.getenv('REDIS_URL')],
             },
