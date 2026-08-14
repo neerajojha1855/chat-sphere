@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const msg = messageInput.value.trim();
         if (msg && chatSocket && activeRoomId) {
             if(chatSocket.readyState !== WebSocket.OPEN) {
-                alert("Connection is not open yet. Please waith a moment.");
+                alert("Connection is not open yet. Please wait a moment.");
                 return;
             }
             let payloadStr = msg;
